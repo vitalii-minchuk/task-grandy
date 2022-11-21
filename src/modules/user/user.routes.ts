@@ -1,5 +1,10 @@
 import { FastifyInstance } from "fastify";
-import createUserHandler from "./user.controller";
+import {
+  createUserHandler,
+  deleteAllUsersHandler,
+  getAllUsersHandler,
+  getSingleUserHandler,
+} from "./user.controller";
 import { $ref } from "./user.schema";
 
 async function userRoutes(server: FastifyInstance) {
@@ -13,6 +18,12 @@ async function userRoutes(server: FastifyInstance) {
     },
     createUserHandler
   );
+
+  server.get("/", getAllUsersHandler);
+
+  server.get("/:id", getSingleUserHandler);
+
+  server.delete("/", deleteAllUsersHandler);
 }
 
 export default userRoutes;

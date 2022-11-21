@@ -12,13 +12,20 @@ datasource db {
 
 model User {
   id         Int      @id @default(autoincrement())
-  gender     Gender
+  gender     String
   first_name String
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+
+  followedBy Follows[] @relation("following")
+  following  Follows[] @relation("follower")
 }
 
-enum Gender {
-  male
-  female
+model Follows {
+  follower    User @relation("follower", fields: [followerId], references: [id])
+  followerId  Int
+  following   User @relation("following", fields: [followingId], references: [id])
+  followingId Int
+
+  @@id([followerId, followingId])
 }

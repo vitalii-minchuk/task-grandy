@@ -1,9 +1,7 @@
 import prisma from "../../utils/prisma";
-import { CreateUserInput, CreateUserResponse } from "./user.schema";
+import { CreateUserInput } from "./user.schema";
 
-export async function createUser(
-  input: CreateUserInput
-): Promise<CreateUserResponse> {
+export async function createUser(input: CreateUserInput) {
   const user = await prisma.user.create({
     data: {
       first_name: input.first_name,
@@ -15,11 +13,29 @@ export async function createUser(
 }
 
 export async function findUsers() {
-  return prisma.user.findMany({
+  const users = await prisma.user.findMany({
     select: {
       first_name: true,
       gender: true,
       id: true,
+      followedBy: {
+        select: { follower: { select: { id: true, first_name: true } } },
+      },
+      following: {
+        select: { following: { select: { id: true, first_name: true } } },
+      },
     },
   });
+
+  return users;
+}
+
+export async function findSingleUser(userId: number) {
+  const user = prisma.user.findFirst({ where: { id: userId } });
+
+  return user;
+}
+
+export async function deleteAllUsers() {
+  return prisma.user.deleteMany();
 }
