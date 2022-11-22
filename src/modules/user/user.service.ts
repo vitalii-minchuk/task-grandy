@@ -18,12 +18,6 @@ export async function findUsers() {
       first_name: true,
       gender: true,
       id: true,
-      followedBy: {
-        select: { follower: { select: { id: true, first_name: true } } },
-      },
-      following: {
-        select: { following: { select: { id: true, first_name: true } } },
-      },
     },
   });
 
@@ -38,4 +32,22 @@ export async function findSingleUser(userId: number) {
 
 export async function deleteAllUsers() {
   return prisma.user.deleteMany();
+}
+
+export async function deleteSingleUser(id: number) {
+  return prisma.user.delete({ where: { id }, select: { id: true } });
+}
+
+export async function findSingleUserWithFriends(userId: number) {
+  const user = prisma.user.findFirst({
+    where: {
+      id: { equals: userId },
+    },
+    select: {
+      id: true,
+      first_name: true,
+    },
+  });
+
+  return user;
 }

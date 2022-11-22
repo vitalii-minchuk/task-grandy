@@ -3,9 +3,12 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import {
   createUser,
   deleteAllUsers,
+  deleteSingleUser,
   findSingleUser,
+  findSingleUserWithFriends,
   findUsers,
 } from "./user.service";
+import { findFriends } from "./followers/followers.service";
 
 export async function createUserHandler(
   request: FastifyRequest<{ Body: CreateUserInput }>,
@@ -43,7 +46,38 @@ export async function deleteAllUsersHandler(
   request: FastifyRequest,
   reply: FastifyReply
 ) {
-  await deleteAllUsers();
+  deleteAllUsers();
 
-  return reply.status(200);
+  return { status: "OK" };
+}
+
+export async function deleteSingleUserHandler(
+  request: FastifyRequest<{
+    Params: {
+      id: number;
+    };
+  }>,
+  reply: FastifyReply
+) {
+  const id = Number(request.params.id);
+
+  const deletedUserId = await deleteSingleUser(id);
+
+  return reply.send(deletedUserId);
+}
+
+export async function getFriendsHandler(
+  request: FastifyRequest<{
+    Params: {
+      id: number;
+    };
+  }>,
+  reply: FastifyReply
+) {
+  const id = Number(request.params.id);
+
+  const user = await findSingleUserWithFriends(id);
+  const friends = await findFriends(id);
+
+  return reply.status(200).send(user);
 }

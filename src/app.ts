@@ -1,5 +1,6 @@
 import fastify from "fastify";
 
+import followersRoutes from "./modules/user/followers/followers.routes";
 import userRoutes from "./modules/user/user.routes";
 import { userSchemas } from "./modules/user/user.schema";
 
@@ -16,6 +17,7 @@ async function main() {
   }
 
   server.register(userRoutes, { prefix: "api/users" });
+  server.register(followersRoutes, { prefix: "/api" });
 
   try {
     await server.listen({ port: port, host: "0.0.0.0" });
