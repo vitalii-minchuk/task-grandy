@@ -1,5 +1,5 @@
-import { CreateUserInput } from "./user.schema";
 import { FastifyReply, FastifyRequest } from "fastify";
+import { CreateUserInput } from "./user.schema";
 import {
   createUser,
   deleteAllUsers,
@@ -13,18 +13,28 @@ export async function createUserHandler(
   request: FastifyRequest<{ Body: CreateUserInput }>,
   reply: FastifyReply
 ) {
-  const user = await createUser(request.body);
+  try {
+    const user = await createUser(request.body);
 
-  return reply.code(201).send(user);
+    return reply.code(201).send(user);
+  } catch (error: any) {
+    console.log("Create user error", error);
+    return reply.send(error);
+  }
 }
 
 export async function getAllUsersHandler(
   request: FastifyRequest,
   reply: FastifyReply
 ) {
-  const users = await findUsers();
+  try {
+    const users = await findUsers();
 
-  return reply.status(200).send(users);
+    return reply.status(200).send(users);
+  } catch (error) {
+    console.log("Get all users error", error);
+    return reply.send(error);
+  }
 }
 
 export async function getSingleUserHandler(
@@ -35,19 +45,29 @@ export async function getSingleUserHandler(
   }>,
   reply: FastifyReply
 ) {
-  const { id } = request.params;
-  const user = await findSingleUser(+id);
+  try {
+    const { id } = request.params;
+    const user = await findSingleUser(+id);
 
-  return reply.status(200).send(user);
+    return reply.status(200).send(user);
+  } catch (error) {
+    console.log("Get single user error", error);
+    return reply.send(error);
+  }
 }
 
 export async function deleteAllUsersHandler(
   request: FastifyRequest,
   reply: FastifyReply
 ) {
-  deleteAllUsers();
+  try {
+    deleteAllUsers();
 
-  return { status: "OK" };
+    return { status: "OK" };
+  } catch (error) {
+    console.log("Delete all users error", error);
+    return reply.send(error);
+  }
 }
 
 export async function deleteSingleUserHandler(
@@ -58,11 +78,16 @@ export async function deleteSingleUserHandler(
   }>,
   reply: FastifyReply
 ) {
-  const id = Number(request.params.id);
+  try {
+    const id = Number(request.params.id);
 
-  const deletedUserId = await deleteSingleUser(id);
+    const deletedUserId = await deleteSingleUser(id);
 
-  return reply.send(deletedUserId);
+    return reply.send(deletedUserId);
+  } catch (error) {
+    console.log("Delete single user error", error);
+    return reply.send(error);
+  }
 }
 
 export async function getFriendsHandler(
@@ -70,12 +95,21 @@ export async function getFriendsHandler(
     Params: {
       id: number;
     };
+    Querystring: {
+      order_type: "desc" | "asc";
+    };
   }>,
   reply: FastifyReply
 ) {
-  const id = Number(request.params.id);
+  try {
+    const id = Number(request.params.id);
+    const { order_type } = request.query;
 
-  const user = await findSingleUserWithFriends(id);
+    const user = await findSingleUserWithFriends(id, order_type);
 
-  return reply.status(200).send(user);
+    return reply.status(200).send(user);
+  } catch (error) {
+    console.log("Get user with friends error", error);
+    return reply.send(error);
+  }
 }

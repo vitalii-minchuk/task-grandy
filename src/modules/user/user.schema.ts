@@ -1,4 +1,3 @@
-import { Follows } from "./../../../node_modules/.prisma/client/index.d";
 import { buildJsonSchemas } from "fastify-zod";
 import * as zod from "zod";
 

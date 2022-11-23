@@ -10,7 +10,7 @@ const data = [
 
 async function main() {
   await Promise.all(
-    Array(20)
+    Array(196)
       .fill(null)
       .map(() => {
         const randomIndex = getRandomNumber(0, 3);
@@ -29,14 +29,13 @@ async function main() {
 
   await Promise.all(
     users.map((user) => {
-      const numberOfFollowings = getRandomNumber(0, 15);
+      const numberOfFollowings = getRandomNumber(0, 149);
       const arrayOfFollowings = getArrayOfRandomIndexes(
         minId,
         maxId,
         numberOfFollowings,
         user.id
       );
-      let count = 0;
       arrayOfFollowings.map(async (el) => {
         follow(user.id, el);
       });
@@ -59,6 +58,20 @@ async function main() {
         });
       });
     })
+  );
+
+  await Promise.all(
+    Array(4)
+      .fill(null)
+      .map(() => {
+        const randomIndex = getRandomNumber(0, 3);
+        return prisma.user.create({
+          data: {
+            first_name: data[randomIndex].first_name,
+            gender: data[randomIndex].gender,
+          },
+        });
+      })
   );
 }
 main()

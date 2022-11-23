@@ -11,9 +11,14 @@ export async function getNotFollowingHandler(
   request: FastifyRequest,
   reply: FastifyReply
 ) {
-  const users = await findUsersWithoutFollowings();
+  try {
+    const users = await findUsersWithoutFollowings();
 
-  return users;
+    return users;
+  } catch (error) {
+    console.log("Find users with followers error", error);
+    return reply.send(error);
+  }
 }
 
 export async function getMaxFollowingHandler(
@@ -24,10 +29,15 @@ export async function getMaxFollowingHandler(
   }>,
   reply: FastifyReply
 ) {
-  const { top } = request.params;
-  const users = await findUsersWithMaxFollowings(+top);
+  try {
+    const { top } = request.params;
+    const users = await findUsersWithMaxFollowings(+top);
 
-  return users;
+    return users;
+  } catch (error) {
+    console.log("Get users with max followers error", error);
+    return reply.send(error);
+  }
 }
 
 export async function followHandler(
@@ -39,15 +49,20 @@ export async function followHandler(
   }>,
   reply: FastifyReply
 ) {
-  const { userId, friendId } = request.body;
+  try {
+    const { userId, friendId } = request.body;
 
-  const followingUser = await follow(+userId, +friendId);
-  const candidate = await isMutual(+userId, +friendId);
+    const followingUser = await follow(+userId, +friendId);
+    const candidate = await isMutual(+userId, +friendId);
 
-  if (candidate) {
-    await makeFriend(+userId, +friendId);
-    await makeFriend(+friendId, +userId);
+    if (candidate) {
+      await makeFriend(+userId, +friendId);
+      await makeFriend(+friendId, +userId);
+    }
+
+    return followingUser;
+  } catch (error) {
+    console.log("Follow error", error);
+    return reply.send(error);
   }
-
-  return followingUser;
 }

@@ -1,15 +1,20 @@
 import prisma from "../../utils/prisma";
+import { User } from "@prisma/client";
 import { CreateUserInput } from "./user.schema";
 
-export async function createUser(input: CreateUserInput) {
-  const user = await prisma.user.create({
-    data: {
-      first_name: input.first_name,
-      gender: input.gender,
-    },
-  });
+export async function createUser(input: CreateUserInput): Promise<User> {
+  try {
+    const user = await prisma.user.create({
+      data: {
+        first_name: input.first_name,
+        gender: input.gender,
+      },
+    });
 
-  return user;
+    return user;
+  } catch (error: any) {
+    throw new Error(error);
+  }
 }
 
 export async function findUsers() {
@@ -25,7 +30,17 @@ export async function findUsers() {
 }
 
 export async function findSingleUser(userId: number) {
-  const user = prisma.user.findFirst({ where: { id: userId } });
+  const user = prisma.user.findFirst({
+    where: { id: userId },
+    select: {
+      id: true,
+      first_name: true,
+      gender: true,
+      following: { select: { following: true } },
+      followedBy: { select: { follower: true } },
+      friends: true,
+    },
+  });
 
   return user;
 }
@@ -38,23 +53,30 @@ export async function deleteSingleUser(id: number) {
   return prisma.user.delete({ where: { id }, select: { id: true } });
 }
 
-export async function findSingleUserWithFriends(userId: number) {
-  const user = prisma.user.findFirst({
-    where: {
-      id: { equals: userId },
-    },
-    select: {
-      id: true,
-      first_name: true,
-      friends: {
-        select: {
-          id: true,
-          first_name: true,
-        },
-        orderBy: { id: "asc" },
+export async function findSingleUserWithFriends(
+  userId: number,
+  order_type: "desc" | "asc"
+) {
+  try {
+    const user = prisma.user.findFirst({
+      where: {
+        id: { equals: userId },
       },
-    },
-  });
+      select: {
+        id: true,
+        first_name: true,
+        friends: {
+          select: {
+            id: true,
+            first_name: true,
+          },
+          orderBy: { id: order_type },
+        },
+      },
+    });
 
-  return user;
+    return user;
+  } catch (error) {
+    throw new Error("Invalid request");
+  }
 }
