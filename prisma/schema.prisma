@@ -20,7 +20,8 @@ model User {
   followedBy Follows[] @relation("following")
   following  Follows[] @relation("follower")
 
-  friends Friend[]
+  friends         User[] @relation("friends")
+  mutualFollowers User[] @relation("friends")
 }
 
 model Follows {
@@ -30,9 +31,4 @@ model Follows {
   followingId Int
 
   @@id([followerId, followingId])
-}
-
-model Friend {
-  friend   User @relation("friends", fields: [friendId], references: [id])
-  friendId Int  @unique @relation("friends")
 }

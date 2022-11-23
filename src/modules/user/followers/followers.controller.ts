@@ -3,6 +3,8 @@ import {
   findUsersWithMaxFollowings,
   findUsersWithoutFollowings,
   follow,
+  isMutual,
+  makeFriend,
 } from "./followers.service";
 
 export async function getNotFollowingHandler(
@@ -38,8 +40,14 @@ export async function followHandler(
   reply: FastifyReply
 ) {
   const { userId, friendId } = request.body;
-  console.log({ userId, friendId });
-  const friend = await follow(+userId, +friendId);
 
-  return friend;
+  const followingUser = await follow(+userId, +friendId);
+  const candidate = await isMutual(+userId, +friendId);
+
+  if (candidate) {
+    await makeFriend(+userId, +friendId);
+    await makeFriend(+friendId, +userId);
+  }
+
+  return followingUser;
 }

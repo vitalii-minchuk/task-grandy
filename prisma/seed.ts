@@ -12,7 +12,7 @@ async function main() {
   await Promise.all(
     Array(20)
       .fill(null)
-      .map((el) => {
+      .map(() => {
         const randomIndex = getRandomNumber(0, 3);
         return prisma.user.create({
           data: {
@@ -36,13 +36,26 @@ async function main() {
         numberOfFollowings,
         user.id
       );
-
+      let count = 0;
       arrayOfFollowings.map(async (el) => {
-        await prisma.follows.create({
-          data: {
-            followerId: user.id,
-            followingId: el,
-          },
+        follow(user.id, el);
+      });
+    })
+  );
+
+  const usersWithFollowers = await prisma.user.findMany({
+    select: { following: true, followedBy: true },
+  });
+  await Promise.all(
+    usersWithFollowers.map((user) => {
+      user.following.forEach((el) => {
+        user.followedBy.forEach(async (item) => {
+          if (el.followingId === item.followerId) {
+            await Promise.all([
+              makeFriend(item.followerId, item.followingId),
+              makeFriend(item.followingId, item.followerId),
+            ]);
+          }
         });
       });
     })
@@ -77,4 +90,33 @@ export function getArrayOfRandomIndexes(
     }
   }
   return arr;
+}
+
+async function follow(followerId: number, followingId: number) {
+  await prisma.follows.create({
+    data: {
+      followerId,
+      followingId,
+    },
+  });
+}
+
+async function makeFriend(followerId: number, followingId: number) {
+  await prisma.user.update({
+    where: { id: followerId },
+    data: { friends: { connect: { id: followingId } } },
+  });
+}
+
+async function isMutual(userId: number, friendId: number) {
+  const candidate = await prisma.follows.findUnique({
+    where: {
+      followerId_followingId: {
+        followerId: friendId,
+        followingId: userId,
+      },
+    },
+  });
+
+  return candidate;
 }

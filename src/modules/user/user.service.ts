@@ -46,6 +46,13 @@ export async function findSingleUserWithFriends(userId: number) {
     select: {
       id: true,
       first_name: true,
+      friends: {
+        select: {
+          id: true,
+          first_name: true,
+        },
+        orderBy: { id: "asc" },
+      },
     },
   });
 

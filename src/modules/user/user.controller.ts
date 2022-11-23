@@ -8,7 +8,6 @@ import {
   findSingleUserWithFriends,
   findUsers,
 } from "./user.service";
-import { findFriends } from "./followers/followers.service";
 
 export async function createUserHandler(
   request: FastifyRequest<{ Body: CreateUserInput }>,
@@ -77,7 +76,6 @@ export async function getFriendsHandler(
   const id = Number(request.params.id);
 
   const user = await findSingleUserWithFriends(id);
-  const friends = await findFriends(id);
 
   return reply.status(200).send(user);
 }
