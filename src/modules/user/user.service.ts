@@ -1,4 +1,4 @@
-import prisma from "../../utils/prisma";
+import { prisma } from "../../utils/prisma";
 import { User } from "@prisma/client";
 import { CreateUserInput } from "./user.schema";
 

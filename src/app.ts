@@ -3,6 +3,7 @@ import fastify from "fastify";
 import followersRoutes from "./modules/user/followers/followers.routes";
 import userRoutes from "./modules/user/user.routes";
 import { userSchemas } from "./modules/user/user.schema";
+import { connectDB } from "./utils/prisma";
 
 const server = fastify();
 const port = 4004;
@@ -20,6 +21,7 @@ async function main() {
   server.register(followersRoutes, { prefix: "/api" });
 
   try {
+    connectDB();
     await server.listen({ port: port, host: "0.0.0.0" });
     console.log(`Server is ready at port: ${port}`);
   } catch (error) {

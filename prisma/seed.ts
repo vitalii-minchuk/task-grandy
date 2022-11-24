@@ -51,8 +51,7 @@ async function main() {
         user.followedBy.forEach(async (item) => {
           if (el.followingId === item.followerId) {
             await Promise.all([
-              makeFriend(item.followerId, item.followingId),
-              makeFriend(item.followingId, item.followerId),
+              makeFriend(+item.followerId, +item.followingId),
             ]);
           }
         });
@@ -83,11 +82,9 @@ main()
     await prisma.$disconnect();
     process.exit(1);
   });
-
 function getRandomNumber(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
-
 export function getArrayOfRandomIndexes(
   from: number,
   to: number,
@@ -95,7 +92,6 @@ export function getArrayOfRandomIndexes(
   userId: number
 ): Array<number> {
   const arr: Array<number> = [];
-
   while (arr.length <= size) {
     let index = getRandomNumber(from, to);
     if (index !== userId && !arr.includes(index)) {
@@ -104,7 +100,6 @@ export function getArrayOfRandomIndexes(
   }
   return arr;
 }
-
 async function follow(followerId: number, followingId: number) {
   await prisma.follows.create({
     data: {
@@ -113,14 +108,12 @@ async function follow(followerId: number, followingId: number) {
     },
   });
 }
-
 async function makeFriend(followerId: number, followingId: number) {
   await prisma.user.update({
     where: { id: followerId },
     data: { friends: { connect: { id: followingId } } },
   });
 }
-
 async function isMutual(userId: number, friendId: number) {
   const candidate = await prisma.follows.findUnique({
     where: {
@@ -130,6 +123,5 @@ async function isMutual(userId: number, friendId: number) {
       },
     },
   });
-
   return candidate;
 }

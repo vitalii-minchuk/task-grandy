@@ -1,20 +1,6 @@
 version: '3.9'
 
 services:
-  grandy-api:
-    command: sh -c "npm run dev"
-    build: ./api
-    environment:
-      NODE_ENV: development
-    ports:
-      - 4004:4004
-    volumes:
-      - ./api:/home/app/api
-      - /home/app/api/node_modules
-    working_dir: /home/app/api
-    restart: on-failure
-    depends_on:
-      - grandy-db
 
   grandy-db:
     container_name: grandy-db
@@ -25,10 +11,24 @@ services:
       - POSTGRES_PASSWORD=changeme
       - POSTGRES_HOST_AUTH_METHOD=trust
     ports:
-      - 5437:5432
+      - 5432:5432
     volumes:
       - pgdata:/var/lib/postgresql/data
     restart: unless-stopped
+
+  grandy-api:
+    container_name: grandy_api
+    platform: linux/x86_64
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      NODE_ENV: development
+    ports:
+      - 4004:4004
+    restart: always
+    depends_on:
+      - grandy-db
 
 volumes:
   pgdata:
